@@ -1,0 +1,189 @@
+#!/bin/sh
+
+HW_ARCH="armv7s"
+HW_MCPU="cortex-a8"
+HW_CPU_FAMILY="arm"
+HW_FLAG_PIC="PIC"
+
+VAR_C_ONLYFLAGS=" -x c"
+VAR_CPP_ONLYFLAGS=" -x c++"
+
+VAR_C_NORMAL_FLAGS=""
+VAR_C_NORMAL_FLAGS+=" -DDEBUG=1"
+VAR_C_NORMAL_FLAGS+=" -pipe"
+VAR_C_NORMAL_FLAGS+=" -fmessage-length=0"
+VAR_C_NORMAL_FLAGS+=" -fpascal-strings"
+VAR_C_NORMAL_FLAGS+=" -O0"
+VAR_C_NORMAL_FLAGS+=" -gdwarf-2"
+VAR_C_NORMAL_FLAGS+=" -fvisibility-inlines-hidden"
+VAR_C_NORMAL_FLAGS+=" -Wno-trigraphs"
+VAR_C_NORMAL_FLAGS+=" -Wreturn-type"
+VAR_C_NORMAL_FLAGS+=" -Wunused-variable"
+#VAR_C_NORMAL_FLAGS+=" -Wstrict-prototypes"
+#VAR_C_NORMAL_FLAGS+=" -Wuninitialized"
+
+BUILD_TOOLS_LIPO="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/lipo"
+
+BUILD_DEVELOP_ROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform"
+BUILD_BIN_ROOT=${BUILD_DEVELOP_ROOT}"/Developer/usr/bin"
+BUILD_ASM_PREPROCESSOR="gas-preprocessor.pl "
+BUILD_SYSTEM_ROOT=${BUILD_DEVELOP_ROOT}"/Developer/SDKs/iPhoneOS6.0.sdk"
+
+for para in "$@"
+do
+if echo ${para} | grep -q "armv7s"
+then
+	HW_ARCH="armv7s"
+	VAR_C_NORMAL_FLAGS+=" -mthumb"
+	VAR_C_NORMAL_FLAGS+=" -miphoneos-version-min=4.3"
+	VAR_C_NORMAL_FLAGS+=" -mcpu="${HW_MCPU}
+	VAR_C_NORMAL_FLAGS+=" -f"${HW_FLAG_PIC}
+	VAR_C_NORMAL_FLAGS+=" -m"${HW_CPU_FAMILY}
+	VAR_C_NORMAL_FLAGS+=" -arch "${HW_ARCH}
+	VAR_C_NORMAL_FLAGS+=" -isysroot "${BUILD_SYSTEM_ROOT}
+	VAR_CPP_ONLYFLAGS+=" --sysroot="${BUILD_SYSTEM_ROOT}
+	VAR_ASFLAGS=" -arch "${HW_ARCH}" -mcpu="${HW_MCPU}" -f"${HW_FLAG_PIC}
+else
+if echo ${para} | grep -q "armv7"
+then
+	HW_ARCH="armv7"
+	VAR_C_NORMAL_FLAGS+=" -mthumb"
+	VAR_C_NORMAL_FLAGS+=" -miphoneos-version-min=4.3"
+	VAR_C_NORMAL_FLAGS+=" -mcpu="${HW_MCPU}
+	VAR_C_NORMAL_FLAGS+=" -f"${HW_FLAG_PIC}
+	VAR_C_NORMAL_FLAGS+=" -m"${HW_CPU_FAMILY}
+	VAR_C_NORMAL_FLAGS+=" -arch "${HW_ARCH}
+	VAR_C_NORMAL_FLAGS+=" -isysroot "${BUILD_SYSTEM_ROOT}
+	VAR_CPP_ONLYFLAGS+=" --sysroot="${BUILD_SYSTEM_ROOT}
+	VAR_ASFLAGS=" -arch "${HW_ARCH}" -mcpu="${HW_MCPU}" -f"${HW_FLAG_PIC}
+else
+if echo ${para} | grep -q "i386"
+then
+	HW_ARCH="i386"
+	HW_MCPU="i386"
+	HW_CPU_FAMILY="x86"
+	HW_FLAG_PIC=""
+	BUILD_DEVELOP_ROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform"
+	BUILD_BIN_ROOT=${BUILD_DEVELOP_ROOT}"/Developer/usr/bin"
+	BUILD_ASM_PREPROCESSOR="gas-preprocessor.pl "
+	BUILD_SYSTEM_ROOT=${BUILD_DEVELOP_ROOT}"/Developer/SDKs/iPhoneSimulator6.0.sdk"
+	BUILD_ASM_PREPROCESSOR=""
+	VAR_C_NORMAL_FLAGS+=" -fexceptions"
+	VAR_C_NORMAL_FLAGS+=" -fasm-blocks"
+	VAR_C_NORMAL_FLAGS+=" -mmacosx-version-min=10.6"
+	VAR_C_NORMAL_FLAGS+=" -D__IPHONE_OS_VERSION_MIN_REQUIRED=40300"
+	VAR_C_NORMAL_FLAGS+=" -arch "${HW_ARCH}
+	VAR_C_NORMAL_FLAGS+=" -isysroot "${BUILD_SYSTEM_ROOT}
+	VAR_CPP_ONLYFLAGS+=" --sysroot="${BUILD_SYSTEM_ROOT}
+	VAR_ASFLAGS=" -arch "${HW_ARCH}
+fi
+fi	
+fi
+
+done
+
+#VAR_C_NORMAL_FLAGS+=" -arch "${HW_ARCH}
+#VAR_C_NORMAL_FLAGS+=" -isysroot "${BUILD_SYSTEM_ROOT}
+#VAR_CPP_ONLYFLAGS+=" --sysroot="${BUILD_SYSTEM_ROOT}
+
+BUILD_GCC_FILENAME="gcc"
+BUILD_AR_FILENAME="ar"
+
+
+VAR_CC=${BUILD_BIN_ROOT}"/"${BUILD_GCC_FILENAME}
+VAR_CPP=${BUILD_BIN_ROOT}"/"${BUILD_GCC_FILENAME}
+VAR_AR=${BUILD_BIN_ROOT}"/"${BUILD_AR_FILENAME}
+VAR_AS=${BUILD_ASM_PREPROCESSOR}${VAR_CC}
+VAR_LD=${BUILD_BIN_ROOT}"/"${BUILD_GCC_FILENAME}
+
+#VAR_CPPFLAGS=" --sysroot="${BUILD_SYSTEM_ROOT}" -D__arm__ -D_ISOC99_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DPIC"
+#VAR_CPPFLAGS=" --sysroot="${BUILD_SYSTEM_ROOT}" -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DPIC"
+#VAR_CFLAGS=" -arch "${HW_ARCH}" -mcpu="${HW_MCPU}" -m"${HW_CPU_FAMILY}" -f"${HW_FLAG_PIC}" -std=c99 -fomit-frame-pointer -Wdeclaration-after-statement -Wall -Wno-parentheses -Wno-switch -Wno-format-zero-length -Wdisabled-optimization -Wpointer-arith -Wredundant-decls -Wno-pointer-sign -Wcast-qual -Wwrite-strings -Wundef -Wmissing-prototypes -Wstrict-prototypes -O3 -fno-math-errno -mllvm -stack-alignment=16"
+#VAR_CFLAGS=" -arch "${HW_ARCH}" -mcpu="${HW_MCPU}" -m"${HW_CPU_FAMILY}" -f"${HW_FLAG_PIC}" -fomit-frame-pointer -Wdeclaration-after-statement -Wall -Wno-parentheses -Wno-switch -Wno-format-zero-length -Wdisabled-optimization -Wpointer-arith -Wredundant-decls -Wno-pointer-sign -Wcast-qual -Wwrite-strings -Wundef -Wmissing-prototypes -Wstrict-prototypes -O3 -fno-math-errno -stack-alignment=16"
+
+
+VAR_CFLAGS=${VAR_C_ONLYFLAGS}${VAR_C_NORMAL_FLAGS}
+VAR_CPPFLAGS=${VAR_CPP_ONLYFLAGS}${VAR_C_NORMAL_FLAGS}
+
+#VAR_ASFLAGS=" -arch "${HW_ARCH}" -mcpu="${HW_MCPU}" -f"${HW_FLAG_PIC}
+
+VAR_LDFLAGS=" -arch "${HW_ARCH}" -isysroot "${BUILD_SYSTEM_ROOT}" --systemroot="${BUILD_SYSTEM_ROOT}" -Wl,-dynamic,-search_paths_first"
+
+
+
+CONFIG_MAK_FILE="config.mak"
+echo "#autogen config.mak file." > ${CONFIG_MAK_FILE}
+
+ALL_SUB_DIRS=(core imgproc objdetect flann ml contrib features2d calib3d  video legacy)
+#ALL_SUB_DIRS=(core imgproc)
+echo "ALL_SUB_DIRS=core imgproc objdetect flann ml contrib features2d calib3d  video legacy" >> ${CONFIG_MAK_FILE}
+
+for SUB_DIR in ${ALL_SUB_DIRS[@]:0}
+do
+VAR_REMOVE_HEADER="rm -fr ../include/opencv2/${SUB_DIR}"
+VAR_COPY_HEADER="cp ${SUB_DIR}/include/opencv2/${SUB_DIR} ../include/opencv2/"
+echo "#${VAR_REMOVE_HEADER}" >> ${CONFIG_MAK_FILE}
+echo "#${VAR_COPY_HEADER}" >> ${CONFIG_MAK_FILE}
+
+# autogen the Makefile.inc in all sub dirs.
+BUILD_FILE_NAME=${SUB_DIR}/"Makefile.inc"
+
+echo "#autogen OBJS src." > ${BUILD_FILE_NAME}
+
+INCLUDE_SUB_INC_DIR="MODULE_INCLUDE_PATHS	+= -I "${SUB_DIR}"/include/"
+echo ${INCLUDE_SUB_INC_DIR} >> ${BUILD_FILE_NAME}
+
+INCLUDE_SUB_SRC_DIR="INCLUDEPATHS	+= "${SUB_DIR}"/src"
+echo ${INCLUDE_SUB_SRC_DIR} >> ${BUILD_FILE_NAME}
+
+ALL_SRC_FILES=$(find ${SUB_DIR}/src -name *.cpp)
+for SRC_FILE in ${ALL_SRC_FILES}
+do
+OBJ_FILE=${SRC_FILE%%.cpp}".o"
+if echo ${OBJ_FILE} | grep -q "precomp.o"
+then
+	echo "#OBJS	+= "${OBJ_FILE} >> ${BUILD_FILE_NAME}
+else
+	echo "OBJS	+= "${OBJ_FILE} >> ${BUILD_FILE_NAME}
+fi
+done
+
+#update the config.mak in root dir.
+echo "include "${BUILD_FILE_NAME} >> ${CONFIG_MAK_FILE}
+
+done
+
+echo ""  >> ${CONFIG_MAK_FILE}
+echo "#compiler var setup" >> ${CONFIG_MAK_FILE}
+echo "LIPO="${BUILD_TOOLS_LIPO} >> ${CONFIG_MAK_FILE}
+echo "ARCH="${HW_ARCH} >> ${CONFIG_MAK_FILE}
+echo "CC="${VAR_CC} >> ${CONFIG_MAK_FILE}
+echo "CPP="${VAR_CPP} >> ${CONFIG_MAK_FILE}
+echo "AR="${VAR_AR} >> ${CONFIG_MAK_FILE} 
+echo "AS="${VAR_AS} >> ${CONFIG_MAK_FILE} 
+echo "LD="${VAR_LD} >> ${CONFIG_MAK_FILE}
+echo "CPPFLAGS="${VAR_CPPFLAGS} >> ${CONFIG_MAK_FILE}
+echo "CFLAGS="${VAR_CFLAGS} >> ${CONFIG_MAK_FILE}
+echo "ASFLAGS="${VAR_ASFLAGS} >> ${CONFIG_MAK_FILE}
+echo "LDFLAGS="${VAR_LDFLAGS} >> ${CONFIG_MAK_FILE}
+
+echo ""  >> ${CONFIG_MAK_FILE}
+echo "AS_O=-o \$@"  >> ${CONFIG_MAK_FILE}
+echo "CC_O=-o \$@"  >> ${CONFIG_MAK_FILE}
+echo "CPP_O=-o \$@"  >> ${CONFIG_MAK_FILE}
+echo ""  >> ${CONFIG_MAK_FILE}
+echo "CPP_DEPFLAGS=-MMD -MF \$(@:.o=.d) -MT \$@"  >> ${CONFIG_MAK_FILE}
+echo "CC_DEPFLAGS=-MMD -MF \$(@:.o=.d) -MT \$@"  >> ${CONFIG_MAK_FILE}
+echo "AS_DEPFLAGS=-MMD -MF \$(@:.o=.d) -MT \$@"  >> ${CONFIG_MAK_FILE}
+
+echo ""  >> ${CONFIG_MAK_FILE}
+echo "ARCH_ARM=yes"  >> ${CONFIG_MAK_FILE}
+echo "HAVE_ARMV5TE=yes"  >> ${CONFIG_MAK_FILE}
+echo "HAVE_ARMV6=yes"  >> ${CONFIG_MAK_FILE}
+echo "HAVE_ARMV6T2=yes"  >> ${CONFIG_MAK_FILE}
+echo "HAVE_ARMVFP=yes"  >> ${CONFIG_MAK_FILE}
+echo "HAVE_NEON=yes"  >> ${CONFIG_MAK_FILE}
+echo "!ARCH_X86=yes"  >> ${CONFIG_MAK_FILE}
+echo "!HAVE_MMX=yes"  >> ${CONFIG_MAK_FILE}
+echo ""  >> ${CONFIG_MAK_FILE}
+

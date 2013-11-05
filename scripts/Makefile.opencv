@@ -1,0 +1,42 @@
+
+include config.mak
+
+SRC_PATH=.
+
+vpath %.c    $(SRC_PATH)
+vpath %.h    $(SRC_PATH)
+vpath %.S    $(SRC_PATH)
+
+CPPFLAGS   := $(IFLAGS) $(CPPFLAGS)
+CFLAGS     += $(ECFLAGS)
+CCFLAGS     = $(CFLAGS)
+
+define COMPILE
+	$($(1)DEP)
+	$($(1)) $(CPPFLAGS) $($(1)FLAGS) $($(1)_DEPFLAGS) -c $($(1)_O) $<
+endef
+
+COMPILE_CPP = $(call COMPILE,CPP)
+COMPILE_C = $(call COMPILE,CC)
+COMPILE_S = $(call COMPILE,AS)
+
+%.o: %.cpp
+	@echo "gcc -c " $<
+	@$(CPP) $(CPPFLAGS) $(CFLAG) ${MODULE_INCLUDE_PATHS} -c $(CPP_O) $<	
+
+%.o: %.c
+	$(COMPILE_C)
+
+%.o: %.S
+	$(COMPILE_S)
+
+opencvlibrary.a: $(OBJS)
+	$(AR) rcs $@ $^ $(OBJS)
+	
+#@echo $(foreach SUB_DIR, ${ALL_SUB_DIRS}, "include/${SUB_DIR}")
+
+all: opencvlibrary.a
+
+clean:
+	rm -f $(OBJS) opencvlibrary.a
+

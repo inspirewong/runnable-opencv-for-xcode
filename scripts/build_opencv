@@ -1,0 +1,24 @@
+#!/bin/sh
+
+make -f Makefile.opencv clean
+source ./setup_modules armv7
+make -f Makefile.opencv
+mv opencvlibrary.a opencvlibrary-armv7.a
+
+make -f Makefile.opencv clean
+source ./setup_modules armv7s
+make -f Makefile.opencv
+mv opencvlibrary.a opencvlibrary-armv7s.a
+
+make -f Makefile.opencv clean
+source ./setup_modules i386
+make -f Makefile.opencv
+mv opencvlibrary.a opencvlibrary-i386.a
+
+
+rm libraryopencv.a
+
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/lipo  -create -arch armv7 opencvlibrary-armv7.a -arch armv7s opencvlibrary-armv7s.a -arch i386 opencvlibrary-i386.a -output libraryopencv.a
+
+
+
